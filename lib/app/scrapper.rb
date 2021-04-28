@@ -1,6 +1,8 @@
 require_relative './page_of_html_document'
+require 'json' # Require the JSON library
 
 class Scrapper
+  attr_reader :all_townhall_urls_hashes_array # array de hashes des e-mails des mairies du Département du Val d'Oise (France)
   
   def get_townhall_email(townhall_url)
     # Retourne l’e-mail d'une mairie à partir de l'URL de la page particulière de cette mairie, si cet e-mail a pu être trouvé,
@@ -42,12 +44,39 @@ class Scrapper
     end
     all_townhall_urls_hashes_array
   end
+
+  def save_as_JSON(file_name)
+    if check_name(file_name) # On vérifie le nom du fichier à créer via une méthode check_name (cf. plus bas)
+      if !@all_townhall_urls_hashes_array.nil? && @all_townhall_urls_hashes_array.instance_of?(Array) && @all_townhall_urls_hashes_array.length > 0
+        simple_hash = {} 
+        @all_townhall_urls_hashes_array.each { |hash| simple_hash.merge!(hash) } # Transforme un tableau de hashes en un seul hash
+        puts "\nTournicoti, tournicoton, voici un majestueux Hash de #{simple_hash.count} keys :\n #{simple_hash}!!!\n" 
+        File.open("./db/" + file_name, "w") do |file| # le chemin relatif est donné par rapport au répertoire d'où est lancée l'application app.rb
+          file.write(JSON.pretty_generate(simple_hash))
+        end
+      else
+        puts "Impossible de sauvegarder le résultat du scrapping dans un fichier au format JSON."
+      end
+    else
+      puts "Impossible de créer un fichier de nom \"#{file_name}\"."
+    end
+  end
   
   def perform
     department_url = "https://www.annuaire-des-mairies.com/val-d-oise.html"
-    all_townhall_urls_hashes_array = get_townhall_urls(department_url)
+    @all_townhall_urls_hashes_array = get_townhall_urls(department_url)
     puts "Voici le fameux array de hashes des e-mails des mairies du Département du Val d'Oise (France) :"
-    puts "#{all_townhall_urls_hashes_array}"
-    puts "Personnellement, je suis née dans une ville de ce département, ville dans laquelle je n'ai pourtant jamais habité et à laquelle je ne désire aucunement écrire... mais il faut de tout pour faire un Monde, non? ;-p"
+    puts "#{@all_townhall_urls_hashes_array}"
+    puts "J'en profite pour le sauvegarder pour la postérité dans un fichier nommé \"emails.json\" au format JSON que vous pourrez trouver sous le répertoire \"./db\"."
+    save_as_JSON("emails.json")
+  end
+
+  private # Toutes les méthodes définies ci-après sont privées : il est interdit de pouvoir les appeler en dehors du code de la classe (donc interdit même dans le "main" ici-même dans ce fichier)
+
+  def check_name(file_to_save_name)
+    # Vérification simple du format du nom du fichier à sauvegarder.
+    # Si le nom est ok, ça renvoie TRUE, sinon ça renvoie FALSE.
+    # On veut vérifier que le file_to_save_name n'est ni nil, ni une instance d'une autre classe que celle des String, ni une chaîne vide :
+    !file_to_save_name.nil? && file_to_save_name.instance_of?(String) && !file_to_save_name.strip.empty?
   end
 end
