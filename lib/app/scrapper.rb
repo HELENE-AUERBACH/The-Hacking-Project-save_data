@@ -1,6 +1,7 @@
 require_relative './page_of_html_document'
 require 'json' # Require the JSON library
 require "google_drive"
+require 'csv'
 
 class Scrapper
   attr_reader :all_townhall_urls_hashes_array # array de hashes des e-mails des mairies du Département du Val d'Oise (France)
@@ -93,6 +94,20 @@ class Scrapper
     end
   end
 
+  def save_as_csv(file_name)
+    if check_name(file_name) # On vérifie le nom du fichier à créer via une méthode check_name (cf. plus bas)
+      if !@simple_hash.nil? && @simple_hash.instance_of?(Hash) && @simple_hash.count > 0
+        CSV.open("./db/" + file_name, "w") do |csv_file| # le chemin relatif est donné par rapport au répertoire d'où est lancée l'application app.rb
+          @simple_hash.each { |key, value| csv_file << [key, value] }
+        end
+      else
+        puts "Impossible de sauvegarder le résultat du scrapping dans un fichier au format CSV."
+      end
+    else
+      puts "Impossible de créer un fichier de nom \"#{file_name}\"."
+    end
+  end
+
   def perform
     department_url = "https://www.annuaire-des-mairies.com/val-d-oise.html"
     @all_townhall_urls_hashes_array = get_townhall_urls(department_url)
@@ -103,6 +118,8 @@ class Scrapper
     save_as_JSON("emails.json")
     puts "\nMais aussi, dans une Google Spreadsheet nommée \"google-drive-ruby-thp-emails-spreadsheet\"."
     save_as_spreadsheet("emails")
+    puts "\nEt enfin, dans un fichier nommé \"emails.csv\" au format CSV que vous pourrez aussi trouver sous le répertoire \"./db\"."
+    save_as_csv("emails.csv")
   end
 
   private # Toutes les méthodes définies ci-après sont privées : il est interdit de pouvoir les appeler en dehors du code de la classe (donc interdit même dans le "main" ici-même dans ce fichier)
@@ -124,5 +141,4 @@ class Scrapper
     end
     simple_hash
   end
-    
 end

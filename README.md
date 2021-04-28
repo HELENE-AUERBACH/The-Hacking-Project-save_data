@@ -18,6 +18,8 @@ J'en profite pour le sauvegarder pour la postérité dans un fichier nommé "ema
 <BR>
 Mais aussi, dans une Google Spreadsheet nommée "google-drive-ruby-thp-emails-spreadsheet".<BR>
 <BR>
+Et enfin, dans un fichier nommé "emails.csv" au format CSV que vous pourrez aussi trouver sous le répertoire "./db".<BR>
+<BR>
 </p>
 </div>
 </body>
