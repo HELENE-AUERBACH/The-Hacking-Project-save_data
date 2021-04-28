@@ -10,7 +10,7 @@ class PageOfHtmlDocument
     # renvoie nil sinon
     page = nil
     if !url_to_scrap.nil? && url_to_scrap.instance_of?(String) && !url_to_scrap.strip.empty?
-      puts "L'URL qui vous intéresse est : \"#{url_to_scrap}\"."
+      #puts "L'URL qui vous intéresse est : \"#{url_to_scrap}\"."
       begin
         page = Nokogiri::HTML(URI.open(url_to_scrap))
       rescue Timeout::Error
